@@ -26,9 +26,9 @@
         left: 50%;
         transform: translate(-50%, -50%);
         font-family: "Segoe UI", Arial, sans-serif;
-        font-size: 40px;
-        color: #ff8fd8;
-        text-shadow: 0 0 20px #ffa5dd, 0 0 40px #ff6ec7;
+        font-size: 34px;
+        color: #fa6ac8;
+        text-shadow: 0 0 15px #ffa5dd, 0 0 30px #ff6ec7;
         opacity: 0;
         transition: opacity 3s ease;
         pointer-events: none;
@@ -37,17 +37,17 @@
 
       #next-btn {
         position: fixed;
-        bottom: 5%;
+        bottom: 4%;
         left: 50%;
         transform: translateX(-50%);
-        background: linear-gradient(135deg, #ff8fd8, #ffb6e6);
+        background: linear-gradient(135deg, #fd75ce, #f57ecc);
         color: white;
         font-size: 15px;
         font-weight: bold;
-        padding: 15px 30px;
+        padding: 10px 20px;
         border: none;
         border-radius: 30px;
-        box-shadow: 0 0 15px #ff8fd8;
+        box-shadow: 0 0 15px #fa81d0;
         cursor: pointer;
         transition: 0.3s;
         opacity: 0;
@@ -57,6 +57,7 @@
         background: linear-gradient(135deg, #ffb6e6, #ff6ec7);
         transform: translateX(-50%) scale(1.1);
         box-shadow: 0 0 25px #ff6ec7;
+        opacity: 0;
       }
     </style>
   </head>
@@ -195,7 +196,7 @@
         }, 5000);
 
         setTimeout(() => {
-          document.getElementById("next-btn").style.opacity = "1";
+          document.getElementById("next-btn").style.opacity = "0.7";
         }, 7000);
 
         setTimeout(() => {
