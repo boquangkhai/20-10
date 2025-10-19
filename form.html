@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>...</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #ffe0f5, #ffd6eb);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      h1 {
+        color: #ff69b4;
+        text-shadow: 0 0 10px #ffa6d2;
+        margin-bottom: 30px;
+      }
+
+      textarea {
+        width: 80%;
+        max-width: 500px;
+        height: 150px;
+        padding: 15px;
+        border-radius: 15px;
+        border: 2px solid #ff9fdc;
+        outline: none;
+        font-size: 18px;
+        resize: none;
+        box-shadow: 0 0 10px #ffbde4;
+        transition: 0.3s;
+      }
+
+      textarea:focus {
+        box-shadow: 0 0 20px #ff8fd8;
+      }
+
+      button {
+        margin-top: 20px;
+        background: linear-gradient(135deg, #ff9fdc, #ff69b4);
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 12px 40px;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        box-shadow: 0 0 10px #ff9fdc;
+        transition: 0.3s;
+      }
+
+      button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px #ff69b4;
+      }
+
+      a {
+        margin-top: 40px;
+        text-decoration: none;
+        color: #ff69b4;
+        font-weight: bold;
+        font-size: 16px;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      #saved-message {
+        margin-top: 20px;
+        color: #ff69b4;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Thích gì nói điiiiii</h1>
+
+    <textarea id="wish-input" placeholder="Ghi dô đây"></textarea>
+
+    <button id="submit-btn">Gửi cho Qkhai</button>
+
+    <div id="saved-message"></div>
+
+    <a href="view.html">Qua coi đủ chưa</a>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+      // Import Firebase SDK
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        push,
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+      // Firebase config
+      const firebaseConfig = {
+        apiKey: "AIzaSyBxaRg5oEbL_JfYIU0bU43Hc364JPQJOYA",
+        authDomain: "quangkhai20-10.firebaseapp.com",
+        databaseURL: "https://quangkhai20-10-default-rtdb.firebaseio.com",
+        projectId: "quangkhai20-10",
+        storageBucket: "quangkhai20-10.firebasestorage.app",
+        messagingSenderId: "527820631959",
+        appId: "1:527820631959:web:41ed89ae9f1d8f0f1a5ed2",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+
+      document
+        .getElementById("submit-btn")
+        .addEventListener("click", async () => {
+          const wish = document.getElementById("wish-input").value.trim();
+
+          if (wish === "") {
+            alert("Nói đi má");
+            return;
+          }
+
+          try {
+            const wishesRef = ref(db, "loichuc");
+            await push(wishesRef, {
+              wish: wish,
+              time: new Date().toLocaleString("vi-VN"),
+            });
+
+            alert("Uki, Anh iu em");
+            document.getElementById("wish-input").value = "";
+          } catch (error) {
+            document.getElementById("saved-message").innerText = error.message;
+          }
+        });
+    </script>
+  </body>
+</html>

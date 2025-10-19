@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tặng Ngọc Yến</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-size: cover;
+      }
+      canvas {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+      }
+
+      #message {
+        position: fixed;
+        top: 15%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: "Segoe UI", Arial, sans-serif;
+        font-size: 40px;
+        color: #ff8fd8;
+        text-shadow: 0 0 20px #ffa5dd, 0 0 40px #ff6ec7;
+        opacity: 0;
+        transition: opacity 3s ease;
+        pointer-events: none;
+        user-select: none;
+      }
+
+      #next-btn {
+        position: fixed;
+        bottom: 5%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #ff8fd8, #ffb6e6);
+        color: white;
+        font-size: 15px;
+        font-weight: bold;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 30px;
+        box-shadow: 0 0 15px #ff8fd8;
+        cursor: pointer;
+        transition: 0.3s;
+        opacity: 0;
+      }
+
+      #next-btn:hover {
+        background: linear-gradient(135deg, #ffb6e6, #ff6ec7);
+        transform: translateX(-50%) scale(1.1);
+        box-shadow: 0 0 25px #ff6ec7;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="heart"></canvas>
+    <div id="message">Chúc em 20/10 vui vẻ</div>
+    <button id="next-btn" onclick="window.location.href='form.html'">
+      Bấm dô
+    </button>
+    <script>
+      window.requestAnimationFrame =
+        window.__requestAnimationFrame ||
+        window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function (callback) {
+          return setTimeout(callback, 1000 / 60);
+        };
+
+      const init = () => {
+        const canvas = document.getElementById("heart");
+        const ctx = canvas.getContext("2d");
+        let width = (canvas.width = innerWidth);
+        let height = (canvas.height = innerHeight);
+
+        const rand = Math.random;
+        const heartPosition = (rad) => [
+          Math.pow(Math.sin(rad), 3),
+          -(
+            15 * Math.cos(rad) -
+            5 * Math.cos(2 * rad) -
+            2 * Math.cos(3 * rad) -
+            Math.cos(4 * rad)
+          ),
+        ];
+        const scaleAndTranslate = (pos, sx, sy, dx, dy) => [
+          dx + pos[0] * sx,
+          dy + pos[1] * sy,
+        ];
+
+        const dr = 0.1;
+        const pointsOrigin = [];
+        for (let i = 0; i < Math.PI * 2; i += dr)
+          pointsOrigin.push(scaleAndTranslate(heartPosition(i), 200, 12, 0, 0));
+        for (let i = 0; i < Math.PI * 2; i += dr)
+          pointsOrigin.push(scaleAndTranslate(heartPosition(i), 130, 8, 0, 0));
+        const heartPointsCount = pointsOrigin.length;
+
+        const targetPoints = [];
+        const pulse = (kx, ky) => {
+          for (let i = 0; i < heartPointsCount; i++) {
+            targetPoints[i] = [
+              kx * pointsOrigin[i][0] + width / 2,
+              ky * pointsOrigin[i][1] + height / 2,
+            ];
+          }
+        };
+
+        const e = [];
+        const traceCount = 60;
+        for (let i = 0; i < heartPointsCount; i++) {
+          const x = rand() * width;
+          const y = rand() * height;
+          e[i] = {
+            vx: 0,
+            vy: 0,
+            speed: 5 + rand(),
+            q: ~~(rand() * heartPointsCount),
+            D: 2 * (i % 2) - 1,
+            force: 0.2 * rand() + 0.7,
+            f: `hsla(${rand() * 10 + 330}, 80%, 60%, 0.4)`,
+            trace: Array.from({ length: traceCount }, () => ({ x, y })),
+          };
+        }
+
+        const config = { traceK: 0.4, timeDelta: 0.015 };
+        let time = 0;
+
+        const loop = () => {
+          const n = -Math.cos(time);
+          pulse((1 + n) * 0.5, (1 + n) * 0.5);
+          time +=
+            (Math.sin(time) < 0 ? 9 : n > 0.8 ? 0.2 : 1) * config.timeDelta;
+
+          ctx.fillStyle = "rgba(0,0,0,0.1)";
+          ctx.fillRect(0, 0, width, height);
+
+          for (let u of e) {
+            const q = targetPoints[u.q];
+            const dx = u.trace[0].x - q[0];
+            const dy = u.trace[0].y - q[1];
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+
+            if (dist < 10) {
+              if (rand() > 0.95) u.q = ~~(rand() * heartPointsCount);
+              else {
+                if (rand() > 0.99) u.D *= -1;
+                u.q = (u.q + u.D + heartPointsCount) % heartPointsCount;
+              }
+            }
+
+            u.vx += (-dx / dist) * u.speed;
+            u.vy += (-dy / dist) * u.speed;
+            u.trace[0].x += u.vx;
+            u.trace[0].y += u.vy;
+            u.vx *= u.force;
+            u.vy *= u.force;
+
+            for (let k = 0; k < u.trace.length - 1; k++) {
+              const T = u.trace[k];
+              const N = u.trace[k + 1];
+              N.x -= config.traceK * (N.x - T.x);
+              N.y -= config.traceK * (N.y - T.y);
+            }
+
+            ctx.fillStyle = u.f;
+            for (let k = 0; k < u.trace.length; k++)
+              ctx.fillRect(u.trace[k].x, u.trace[k].y, 1.5, 1.5);
+          }
+
+          requestAnimationFrame(loop);
+        };
+
+        window.addEventListener("resize", () => {
+          width = canvas.width = innerWidth;
+          height = canvas.height = innerHeight;
+        });
+
+        loop();
+
+        setTimeout(() => {
+          document.getElementById("message").style.opacity = "1";
+        }, 5000);
+
+        setTimeout(() => {
+          document.getElementById("next-btn").style.opacity = "1";
+        }, 7000);
+
+        setTimeout(() => {
+          document.getElementById("message").style.opacity = "0";
+        }, 10000);
+      };
+
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
